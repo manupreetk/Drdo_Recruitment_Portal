@@ -9,7 +9,11 @@ const applicationSchema = new mongoose.Schema({
   applicationId: {
     type: String,
     unique: true,
-    required: true
+    default: function () {
+      const year = new Date().getFullYear();
+      const rand = Math.floor(Math.random() * 900000) + 100000;
+      return `APP${year}${rand}`;
+    }
   },
   position: {
     type: String,
@@ -61,16 +65,6 @@ const applicationSchema = new mongoose.Schema({
   }
 }, {
   timestamps: true
-});
-
-// Generate unique application ID
-applicationSchema.pre('save', async function(next) {
-  if (!this.applicationId) {
-    const year = new Date().getFullYear();
-    const count = await mongoose.model('Application').countDocuments();
-    this.applicationId = `APP${year}${String(count + 1).padStart(3, '0')}`;
-  }
-  next();
 });
 
 module.exports = mongoose.model('Application', applicationSchema);
